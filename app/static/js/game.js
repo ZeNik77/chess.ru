@@ -1,11 +1,3 @@
-/*var config = {
-  position: 'start',
-  draggable: true,
-}
-var board = Chessboard('myBoard', config)*/
-// NOTE: this example uses the chess.js library:
-// https://github.com/jhlywa/chess.js
-
 var board = null
 var game = new Chess()
 var $status = $('#status')
@@ -71,6 +63,9 @@ function updateStatus() {
     }
     $debug.html(game.ascii())
     $status.html(status)
+    var pack = {xd: 1, notxd: 0}
+    sendinfo('/room/new', function () {
+    }, JSON.stringify(pack))
 }
 
 var config = {
