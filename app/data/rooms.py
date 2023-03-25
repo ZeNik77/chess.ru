@@ -7,7 +7,7 @@ class Room(SqlAlchemyBase):
     __tablename__ = 'rooms'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
-                           primary_key=True, autoincrement=True)
+                           unique=True)
     key = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     users = sqlalchemy.Column(sqlalchemy.Integer,
                               index=True, unique=False, nullable=True)
@@ -16,4 +16,4 @@ class Room(SqlAlchemyBase):
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
     data = sqlalchemy.Column(sqlalchemy.String,
-                              index=True, unique=False, nullable=True)
+                             index=True, unique=False, nullable=True)

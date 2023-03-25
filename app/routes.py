@@ -1,10 +1,25 @@
+import random
 import time
 
 from app import app, render_template, connects
 from flask import request, jsonify, make_response
 from app.data.db_session import create_session
-from app.data.__all_models import users
+from app.data.__all_models import users, rooms
 import hashlib
+
+MAX_GAMES = 5
+ROOM_IDS_RANGE = 10 ** 10
+USER_IDS_RANGE = 10 ** 10
+
+'''
+rms = db_sess.query(rooms.Room).all()
+        counter = 0
+        for i in rms:
+            k = eval(i.data)
+            if account in k:
+                counter += 1
+        if counter < MAX_GAMES:
+'''
 
 
 def sha512(Password):
@@ -27,7 +42,7 @@ def account_check(req):
     if a:
         res = db_sess.query(users.User).filter(users.User.session == a).all()
         if len(res) == 1:
-            return True
+            return res[0].id
     return False
 
 
@@ -40,8 +55,20 @@ def index():
 @app.route('/room/new', methods=['POST'])
 def newroom():
     print(request.json)
-    if account_check(request):
-        return connects.newroom(request)
+    account = account_check(request)
+    a = request.cookies.get('rooms_created', 0)
+    if account:
+        if a < MAX_GAMES:
+            room = rooms.Room()
+            room.id = id = random.randint(1, ROOM_IDS_RANGE)
+            room.data = '[]'
+            room.type = '1v1'
+            room.users = 0
+            db_sess.add(room)
+            db_sess.commit()
+            resp = make_response(id)
+            resp.set_cookie("rooms_created", a + 1, max_age=60 * 60)
+            return resp
     else:
         return 'Session not found', 418
 
@@ -75,12 +102,16 @@ def signup():
         usrs = db_sess.query(users.User).filter(users.User.email == mail or users.User.name == username).all()
         if len(usrs) == 0:
             print('ok')
-            new = users.User()
-            new.email = mail
-            new.name = username
-            new.hashed_password = password
-            db_sess.add(new)
-            db_sess.commit()
+            try:
+                new = users.User()
+                new.id = random.randint(1, USER_IDS_RANGE)
+                new.email = mail
+                new.name = username
+                new.hashed_password = password
+                db_sess.add(new)
+                db_sess.commit()
+            except:
+                return 'server error'
             return 'Ok'
         else:
             return 'Failed'
