@@ -52,25 +52,34 @@ def index():
     return render_template('game.html')
 
 
-@app.route('/room/new', methods=['POST'])
+@app.route('/room/new', methods=['GET', 'POST'])
 def newroom():
     print(request.json)
     account = account_check(request)
     a = request.cookies.get('rooms_created', 0)
     if account:
         if a < MAX_GAMES:
+            print('ok')
             room = rooms.Room()
-            room.id = id = random.randint(1, ROOM_IDS_RANGE)
-            room.data = '[]'
+            room.glob_id = id = random.randint(1, ROOM_IDS_RANGE)
+            room.data = ''
             room.type = '1v1'
             room.users = 0
             db_sess.add(room)
             db_sess.commit()
             resp = make_response(id)
             resp.set_cookie("rooms_created", a + 1, max_age=60 * 60)
+
+            @app.route(f'/room/{id}', methods=['GET'])
+            def room():
+                ...
+
             return resp
+        else:
+            print('not ok')
+            return 'Too many rooms'
     else:
-        return 'Session not found', 418
+        return 'Session not found'
 
 
 @app.route('/login', methods=['POST', 'GET'])
@@ -104,7 +113,7 @@ def signup():
             print('ok')
             try:
                 new = users.User()
-                new.id = random.randint(1, USER_IDS_RANGE)
+                new.glob_id = random.randint(1, USER_IDS_RANGE)
                 new.email = mail
                 new.name = username
                 new.hashed_password = password

@@ -5,9 +5,10 @@ from .db_session import SqlAlchemyBase
 
 class Room(SqlAlchemyBase):
     __tablename__ = 'rooms'
-
     id = sqlalchemy.Column(sqlalchemy.Integer,
-                           unique=True)
+                           primary_key=True, autoincrement=True)
+    glob_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                unique=True)
     key = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     users = sqlalchemy.Column(sqlalchemy.Integer,
                               index=True, unique=False, nullable=True)

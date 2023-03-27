@@ -7,7 +7,9 @@ class User(SqlAlchemyBase):
     __tablename__ = 'users'
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
-                           unique=True)
+                           primary_key=True, autoincrement=True)
+    glob_id = sqlalchemy.Column(sqlalchemy.Integer,
+                                unique=True)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     email = sqlalchemy.Column(sqlalchemy.String,
