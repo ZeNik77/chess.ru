@@ -11,7 +11,7 @@
         var name = $name.value
         var pass = $pass.value
         var pack = {name: name, pass: sha512(pass)}
-        sendinfo('/login', function (ths) {
+        sendinfo('/login','POST', function (ths) {
             console.log(ths.responseText)
         }, JSON.stringify(pack))
     }
