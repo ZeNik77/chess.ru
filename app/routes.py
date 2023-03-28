@@ -1,40 +1,24 @@
 import random
 import time
-
 from app import app, render_template, connects
 from flask import request, jsonify, make_response
 from app.data.db_session import create_session
 from app.data.__all_models import users, rooms
 import hashlib
+import flask_sock
 
+sock = flask_sock.Sock(app)
 MAX_GAMES = 5
 ROOM_IDS_RANGE = 10 ** 10
 USER_IDS_RANGE = 10 ** 10
+db_sess = create_session()
 
-'''
-rms = db_sess.query(rooms.Room).all()
-        counter = 0
-        for i in rms:
-            k = eval(i.data)
-            if account in k:
-                counter += 1
-        if counter < MAX_GAMES:
-'''
 
+# FUNCTIONS
 
 def sha512(Password):
     HashedPassword = hashlib.sha512(Password.encode('utf-8')).hexdigest()
     return HashedPassword
-
-
-db_sess = create_session()
-'''
-test = users.User()
-test.name = 'xdeshnik'
-test.email = 'aye@mail.ru'
-db_sess.add(test)
-db_sess.commit()
-'''
 
 
 def account_check(req):
@@ -46,8 +30,13 @@ def account_check(req):
     return False
 
 
+# ERROR HANDLERS
+...
+
+# ROUTES
+
 @app.route('/')
-@app.route('/index')
+@app.route('/game')
 def index():
     return render_template('game.html')
 
@@ -115,6 +104,7 @@ def signup():
                 new = users.User()
                 new.glob_id = random.randint(1, USER_IDS_RANGE)
                 new.email = mail
+                new.rating = 0
                 new.name = username
                 new.hashed_password = password
                 db_sess.add(new)
@@ -126,6 +116,28 @@ def signup():
             return 'Failed'
     else:
         return render_template('signup.html')
+
+
+# SOCKETS
+
+@sock.route('/gamesock')
+def handle(ws):
+    data = ws.receive()
+    if data == 'null':
+        print('closing')
+        # ws.close(450, message='id was not received')
+        return
+    else:
+        print(data)
+        data = int(data)
+
+    room = db_sess.query(rooms.Room).filter(rooms.Room.id == data).all()
+    print(room)
+    # ws.send()
+    print('STARTED', data)
+    while True:
+        data = ws.receive()
+        print(data)
 
 @app.route('/leaderboard', methods=['POST', 'GET'])
 def leaderboard():

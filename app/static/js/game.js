@@ -1,7 +1,32 @@
 var board = null
 var game = new Chess()
-var $status = $('#status')
+// var $status = ('#status')
 var $debug = $('#debug')
+var socket = new WebSocket('ws://' + location.host + '/gamesock');
+var urlParams = new URLSearchParams(window.location.search);
+var id = urlParams.get('id')
+socket.onopen = function (e) {
+    console.log("[open] Connection established");
+    socket.send(id)
+};
+
+socket.onmessage = function (event) {
+    console.log(`[message] Data received from server: ${event.data}`);
+};
+
+socket.onclose = function (event) {
+    if (event.wasClean) {
+        console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+    } else {
+        // e.g. server process killed or network down
+        // event.code is usually 1006 in this case
+        console.log('[close] Connection died');
+    }
+};
+
+socket.onerror = function (error) {
+    console.log(error);
+};
 
 function onDragStart(source, piece, position, orientation) {
     // do not pick up pieces if the game is over
@@ -62,10 +87,9 @@ function updateStatus() {
         }
     }
     $debug.html(game.ascii())
-    $status.html(status)
-    var pack = {xd: 1, notxd: 0}
-    sendinfo('/room/new', function () {
-    }, JSON.stringify(pack))
+    // $status.html(status)
+    socket.send(game.fen());
+
 }
 
 var config = {
