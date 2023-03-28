@@ -126,3 +126,8 @@ def signup():
             return 'Failed'
     else:
         return render_template('signup.html')
+
+@app.route('/leaderboard', methods=['POST', 'GET'])
+def leaderboard():
+    leaderboard_data = db_sess.query(users.User.name, users.User.rating).order_by(users.User.rating.desc()).all()
+    return render_template('leaderboard.html', leaderboard_data=leaderboard_data)
