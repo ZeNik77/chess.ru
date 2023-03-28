@@ -18,16 +18,19 @@
             </a>
 
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
+                <li><a href="/" class="nav-link px-2 text-secondary">Home</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">Курсы</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Запустить код</a></li>
                 <li><a href="#" class="nav-link px-2 text-white">О мне</a></li>
             </ul>
 
 
             <div class="text-end">
+                {% if not cur_user %}
                 <button type="button" class="btn btn-outline-light me-2" onclick="location.href='/login';">Войти</button>
                 <button type="button" class="btn btn-primary" onclick="location.href='/signup';">Регистрация</button>
+                {% else %}
+                <a href="/profile">{{ cur_user }}</a>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -4,7 +4,7 @@ import time
 import hashlib
 import flask_sock
 from app import app, render_template
-from flask import request, jsonify, make_response
+from flask import request, jsonify, make_response, redirect
 from app.data.db_session import create_session
 from app.data.__all_models import users, rooms
 
@@ -24,12 +24,18 @@ def sha512(Password):
 
 def account_check(req):
     a = request.cookies.get('session', 0)
+    
     if a:
         res = db_sess.query(users.User).filter(users.User.session == a).all()
         if len(res) == 1:
+            
             return res[0].glob_id
     return False
 
+def get_username(requestrequest):
+    id = account_check(request)
+    username = db_sess.query(users.User.name).filter(users.User.glob_id == id).first()
+    return username[0]
 
 # ERROR HANDLERS
 @app.errorhandler(Exception)
@@ -41,12 +47,12 @@ def err(error):
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', cur_user=get_username(request))
 
 
 @app.route('/game')
 def game():
-    return render_template('game.html')
+    return render_template('game.html', cur_user=get_username(request))
 
 
 @app.route('/newroom', methods=['GET'])
@@ -55,7 +61,6 @@ def newroom():
     a = int(request.cookies.get('rooms_created', 0))
     if account:
         if a < MAX_GAMES:
-            print('ok')
             room = rooms.Room()
             room.glob_id = id = random.randint(1, ROOM_IDS_RANGE)
             room.data = 'start'
@@ -68,7 +73,6 @@ def newroom():
             resp.set_cookie("rooms_created", value=str(a + 1), max_age=60 * 60)
             return resp
         else:
-            print('not ok')
             return 'Too many rooms'
     else:
         return 'Session not found'
@@ -76,7 +80,6 @@ def newroom():
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-    print(account_check(request))
     if request.is_json:
         username = request.json.get('name', 0)
         password = request.json.get('pass', 0)
@@ -91,7 +94,7 @@ def login():
             res.set_cookie("session", session, max_age=60 * 60 * 24 * 365 * 2)
             return res
     else:
-        return render_template('login.html')
+        return render_template('login.html', cur_user=get_username(request))
 
 
 @app.route('/signup', methods=['POST', 'GET'])
@@ -102,7 +105,6 @@ def signup():
         password = request.json['pass']
         usrs = db_sess.query(users.User).filter(users.User.email == mail or users.User.name == username).all()
         if len(usrs) == 0:
-            print('ok')
             try:
                 new = users.User()
                 new.glob_id = random.randint(1, USER_IDS_RANGE)
@@ -118,13 +120,27 @@ def signup():
         else:
             return 'Failed'
     else:
-        return render_template('signup.html')
+        return render_template('signup.html', cur_user=get_username(request))
 
 
 @app.route('/leaderboard', methods=['POST', 'GET'])
 def leaderboard():
     leaderboard_data = db_sess.query(users.User.name, users.User.rating).order_by(users.User.rating.desc()).all()
-    return render_template('leaderboard.html', leaderboard_data=leaderboard_data)
+    return render_template('leaderboard.html', leaderboard_data=leaderboard_data, cur_user=get_username(request))
+
+@app.route('/profile', methods=['GET'])
+def profile():
+    id = account_check(request)
+    if id:
+        dataxd = db_sess.query(users.User.name, users.User.rating).filter(users.User.glob_id == id).first()
+        print(type(dataxd))
+        if len(dataxd):
+            print('\n\n\n', dataxd, '\n\n\n')
+            return render_template('profile.html', data=dataxd, cur_user=get_username(request))
+        else:
+            return "no data"
+    else:
+        return redirect('/signup')
 
 
 # SOCKETS
