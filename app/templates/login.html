@@ -12,7 +12,7 @@
         var pass = $pass.value
         var pack = {name: name, pass: sha512(pass)}
         sendinfo('/login','POST', function (ths) {
-            console.log(ths.responseText)
+            if (ths.responseText) {location.href = '/'}
         }, JSON.stringify(pack))
     }
 </script>

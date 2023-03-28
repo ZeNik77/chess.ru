@@ -1,14 +1,15 @@
+import json
 import random
 import time
-from app import app, render_template, connects
+import hashlib
+import flask_sock
+from app import app, render_template
 from flask import request, jsonify, make_response
 from app.data.db_session import create_session
 from app.data.__all_models import users, rooms
-import hashlib
-import flask_sock
 
 sock = flask_sock.Sock(app)
-MAX_GAMES = 5
+MAX_GAMES = 9999
 ROOM_IDS_RANGE = 10 ** 10
 USER_IDS_RANGE = 10 ** 10
 db_sess = create_session()
@@ -26,43 +27,45 @@ def account_check(req):
     if a:
         res = db_sess.query(users.User).filter(users.User.session == a).all()
         if len(res) == 1:
-            return res[0].id
+            return res[0].glob_id
     return False
 
 
 # ERROR HANDLERS
-...
+@app.errorhandler(Exception)
+def err(error):
+    print(error)
+
 
 # ROUTES
-
 @app.route('/')
-@app.route('/game')
+@app.route('/index')
 def index():
+    return render_template('index.html')
+
+
+@app.route('/game')
+def game():
     return render_template('game.html')
 
 
-@app.route('/room/new', methods=['GET', 'POST'])
+@app.route('/newroom', methods=['GET'])
 def newroom():
-    print(request.json)
     account = account_check(request)
-    a = request.cookies.get('rooms_created', 0)
+    a = int(request.cookies.get('rooms_created', 0))
     if account:
         if a < MAX_GAMES:
             print('ok')
             room = rooms.Room()
             room.glob_id = id = random.randint(1, ROOM_IDS_RANGE)
-            room.data = ''
+            room.data = 'start'
             room.type = '1v1'
             room.users = 0
             db_sess.add(room)
             db_sess.commit()
-            resp = make_response(id)
-            resp.set_cookie("rooms_created", a + 1, max_age=60 * 60)
-
-            @app.route(f'/room/{id}', methods=['GET'])
-            def room():
-                ...
-
+            cnt = json.dumps({'id': id})
+            resp = make_response(cnt)
+            resp.set_cookie("rooms_created", value=str(a + 1), max_age=60 * 60)
             return resp
         else:
             print('not ok')
@@ -118,6 +121,12 @@ def signup():
         return render_template('signup.html')
 
 
+@app.route('/leaderboard', methods=['POST', 'GET'])
+def leaderboard():
+    leaderboard_data = db_sess.query(users.User.name, users.User.rating).order_by(users.User.rating.desc()).all()
+    return render_template('leaderboard.html', leaderboard_data=leaderboard_data)
+
+
 # SOCKETS
 
 @sock.route('/gamesock')
@@ -125,21 +134,17 @@ def handle(ws):
     data = ws.receive()
     if data == 'null':
         print('closing')
-        # ws.close(450, message='id was not received')
-        return
+        ws.close()
     else:
         print(data)
         data = int(data)
-
-    room = db_sess.query(rooms.Room).filter(rooms.Room.id == data).all()
-    print(room)
-    # ws.send()
-    print('STARTED', data)
-    while True:
-        data = ws.receive()
-        print(data)
-
-@app.route('/leaderboard', methods=['POST', 'GET'])
-def leaderboard():
-    leaderboard_data = db_sess.query(users.User.name, users.User.rating).order_by(users.User.rating.desc()).all()
-    return render_template('leaderboard.html', leaderboard_data=leaderboard_data)
+        room = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == data).all()[0]
+        ws.send(room.data)
+        print('STARTED', data)
+        while True:
+            data = ws.receive()
+            if data.count('/') == 7:
+                room.data = data
+                db_sess.commit()
+            print(data)
+            ws.send(room.data)

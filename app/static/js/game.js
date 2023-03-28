@@ -5,6 +5,8 @@ var $debug = $('#debug')
 var socket = new WebSocket('ws://' + location.host + '/gamesock');
 var urlParams = new URLSearchParams(window.location.search);
 var id = urlParams.get('id')
+var pos = 'start';
+
 socket.onopen = function (e) {
     console.log("[open] Connection established");
     socket.send(id)
@@ -12,6 +14,9 @@ socket.onopen = function (e) {
 
 socket.onmessage = function (event) {
     console.log(`[message] Data received from server: ${event.data}`);
+    pos = event.data
+    game.load(event.data)
+    board.position(event.data)
 };
 
 socket.onclose = function (event) {
@@ -94,7 +99,7 @@ function updateStatus() {
 
 var config = {
     draggable: true,
-    position: 'start',
+    position: pos,
     onDragStart: onDragStart,
     onDrop: onDrop,
     onSnapEnd: onSnapEnd

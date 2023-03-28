@@ -14,8 +14,8 @@
         var mail = $mail.value
         var pass = $pass.value
         var pack = {name: name, pass: sha512(pass), mail: mail}
-        sendinfo('/signup', function (ths) {
-            console.log(ths.responseText)
+        sendinfo('/signup','POST', function (ths) {
+            if (ths.responseText) {location.href = '/login'}
         }, JSON.stringify(pack))
     }
 </script>

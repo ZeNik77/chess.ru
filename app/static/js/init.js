@@ -9,3 +9,10 @@ function sendinfo(url, method, cFunction, cnt) {
     }
     xhttp.send(cnt);
 }
+
+function getnewroom() {
+    const xhttp = new XMLHttpRequest();
+    xhttp.open('GET', '/newroom', false);
+    xhttp.send();
+    return JSON.parse(xhttp.responseText).id
+}
