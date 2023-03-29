@@ -1,0 +1,17 @@
+{% extends base.html %}
+
+{% block head %}
+<title>Новости</title>>
+{% endblock %}
+
+{% block body %}
+    {% for title, date, description, topic in data %}
+        <div class="col p-4 d-flex flex-column position-static">
+            <strong class="d-inline-block mb-2 text-primary">{{ topic }}</strong>
+            <h3 class="mb-0">{{ title }}</h3>
+            <div class="mb-1 text-body-secondary">{{ date }}</div>
+            <p class="card-text mb-auto">{{ description }}</p>
+            <a href="{{ url }}" class="stretched-link">Continue reading</a>
+        </div>
+    {% endblock %}
+{% endblock %}

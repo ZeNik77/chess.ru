@@ -190,3 +190,9 @@ def handle(ws):
                 ...
             print(data)
             ws.send(room.data)
+
+@app.route('/news', methods=['POST', 'GET'])
+def news(request):
+    # data = db_sess.query(news.New.title, news.New.description, news.New.date, news.New.topic, news.New.url).all()
+    # return render_template('news.html', data=data, cur_user=get_username(request))
+    return
