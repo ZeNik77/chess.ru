@@ -24,15 +24,15 @@ def sha512(Password):
 
 def account_check(req):
     a = request.cookies.get('session', 0)
-    
+
     if a:
         res = db_sess.query(users.User).filter(users.User.session == a).all()
         if len(res) == 1:
-            
             return res[0].glob_id
     return False
 
-def get_username(requestrequest):
+
+def get_username(request):
     id = account_check(request)
     username = db_sess.query(users.User.name).filter(users.User.glob_id == id).first()
     if username:
@@ -40,10 +40,9 @@ def get_username(requestrequest):
     else:
         return ''
 
+
 # ERROR HANDLERS
-@app.errorhandler(Exception)
-def err(error):
-    print(error)
+...
 
 
 # ROUTES
@@ -55,6 +54,25 @@ def index():
 
 @app.route('/game')
 def game():
+    id = request.values.get('id', 0)
+    account = account_check(request)
+    if id and account:
+        room = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == id).all()
+        if room:
+            room = room[0]
+            if not room.w and room.w != id:
+                room.w = id
+            elif not room.b and room.w != id:
+                room.b = id
+            else:
+                return redirect('/')
+            db_sess.commit()
+        else:
+            return redirect('/')
+    elif not account:
+        return redirect('/login')
+    else:
+        return redirect('/')
     return render_template('game.html', cur_user=get_username(request))
 
 
@@ -68,7 +86,7 @@ def newroom():
             room.glob_id = id = random.randint(1, ROOM_IDS_RANGE)
             room.data = 'start'
             room.type = '1v1'
-            room.users = 0
+            room.users = '{}'
             db_sess.add(room)
             db_sess.commit()
             cnt = json.dumps({'id': id})
@@ -131,6 +149,7 @@ def leaderboard():
     leaderboard_data = db_sess.query(users.User.name, users.User.rating).order_by(users.User.rating.desc()).all()
     return render_template('leaderboard.html', leaderboard_data=leaderboard_data, cur_user=get_username(request))
 
+
 @app.route('/profile', methods=['GET'])
 def profile():
     id = account_check(request)
@@ -165,5 +184,9 @@ def handle(ws):
             if data.count('/') == 7:
                 room.data = data
                 db_sess.commit()
+            elif data == 'draw':
+                ...
+            elif data == 'checkmate':
+                ...
             print(data)
             ws.send(room.data)

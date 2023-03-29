@@ -1,7 +1,7 @@
 var board = null
 var game = new Chess()
-// var $status = ('#status')
-var $debug = $('#debug')
+var $status = $('#status')
+// var $debug = $('#debug')
 var socket = new WebSocket('ws://' + location.host + '/gamesock');
 var urlParams = new URLSearchParams(window.location.search);
 var id = urlParams.get('id')
@@ -75,11 +75,14 @@ function updateStatus() {
     // checkmate?
     if (game.in_checkmate()) {
         status = 'Game over, ' + moveColor + ' is in checkmate.'
+        socket.send('checkmate');
     }
 
     // draw?
     else if (game.in_draw()) {
         status = 'Game over, drawn position'
+        socket.send('draw');
+
     }
 
     // game still on
@@ -90,10 +93,10 @@ function updateStatus() {
         if (game.in_check()) {
             status += ', ' + moveColor + ' is in check'
         }
+        socket.send(game.fen());
     }
-    $debug.html(game.ascii())
-    // $status.html(status)
-    socket.send(game.fen());
+    $status.text(status)
+
 
 }
 
