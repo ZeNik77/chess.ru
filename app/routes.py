@@ -35,7 +35,10 @@ def account_check(req):
 def get_username(requestrequest):
     id = account_check(request)
     username = db_sess.query(users.User.name).filter(users.User.glob_id == id).first()
-    return username[0]
+    if username:
+        return username[0]
+    else:
+        return ''
 
 # ERROR HANDLERS
 @app.errorhandler(Exception)
