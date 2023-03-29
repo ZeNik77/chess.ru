@@ -10,11 +10,11 @@ class Room(SqlAlchemyBase):
     glob_id = sqlalchemy.Column(sqlalchemy.Integer,
                                 unique=True)
     key = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    w = sqlalchemy.Column(sqlalchemy.String,
+    w = sqlalchemy.Column(sqlalchemy.Integer,
                           unique=False, nullable=True)
-    b = sqlalchemy.Column(sqlalchemy.String,
+    b = sqlalchemy.Column(sqlalchemy.Integer,
                           unique=False, nullable=True)
-    type = sqlalchemy.Column(sqlalchemy.Integer,
+    cost = sqlalchemy.Column(sqlalchemy.Integer,
                              index=True, unique=False, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)

@@ -41,6 +41,10 @@ def get_username(request):
         return ''
 
 
+def get_orientation(request):
+    account = account_check(request)
+
+
 # ERROR HANDLERS
 ...
 
@@ -60,12 +64,15 @@ def game():
         room = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == id).all()
         if room:
             room = room[0]
-            if not room.w and room.w != id:
-                room.w = id
-            elif not room.b and room.w != id:
-                room.b = id
+            if room.w == account or room.b == account:
+                ...
+            elif not room.w:
+                room.w = account
+            elif not room.b:
+                room.b = account
             else:
                 return redirect('/')
+
             db_sess.commit()
         else:
             return redirect('/')
@@ -169,18 +176,25 @@ def profile():
 
 @sock.route('/gamesock')
 def handle(ws):
+    account = account_check(request)
     data = ws.receive()
     if data == 'null':
         print('closing')
         ws.close()
     else:
         print(data)
-        data = int(data)
         room = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == data).all()[0]
-        ws.send(room.data)
+        # w_us = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == int(room.w)).first()
+        # b_us = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == int(room.b)).first()
+        jdt = {"fen": room.data, "orientation": "white" if room.w == account else "black"}
+
+        ws.send(jdt)
         print('STARTED', data)
+        print(jdt)
         while True:
-            data = ws.receive()
+            data = ws.receive(timeout=0.01)
+            if not data:
+                continue
             if data.count('/') == 7:
                 room.data = data
                 db_sess.commit()
@@ -189,7 +203,9 @@ def handle(ws):
             elif data == 'checkmate':
                 ...
             print(data)
-            ws.send(room.data)
+            jdt = {"fen": room.data, "orientation": "white" if room.w == account else "black"}
+            ws.send(jdt)
+
 
 @app.route('/news', methods=['POST', 'GET'])
 def news(request):

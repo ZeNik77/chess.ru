@@ -6,7 +6,7 @@ var socket = new WebSocket('ws://' + location.host + '/gamesock');
 var urlParams = new URLSearchParams(window.location.search);
 var id = urlParams.get('id')
 var pos = 'start';
-
+var orient = 'white';
 socket.onopen = function (e) {
     console.log("[open] Connection established");
     socket.send(id)
@@ -14,9 +14,14 @@ socket.onopen = function (e) {
 
 socket.onmessage = function (event) {
     console.log(`[message] Data received from server: ${event.data}`);
-    pos = event.data
-    game.load(event.data)
-    board.position(event.data)
+    var dt = JSON.parse(event.data.replace(/'/g, '"'))
+    pos = dt.fen
+    game.load(dt.fen)
+    board.position(dt.fen)
+    if (dt.orientation != board.orientation) {
+        board.flip()
+    }
+
 };
 
 socket.onclose = function (event) {
@@ -103,6 +108,7 @@ function updateStatus() {
 var config = {
     draggable: true,
     position: pos,
+    orientation: orient,
     onDragStart: onDragStart,
     onDrop: onDrop,
     onSnapEnd: onSnapEnd
