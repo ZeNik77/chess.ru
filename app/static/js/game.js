@@ -9,19 +9,28 @@ var pos = 'start';
 var orient = 'white';
 socket.onopen = function (e) {
     console.log("[open] Connection established");
-    socket.send(id)
+    var pack = {type: 'JOIN', roomid: id};
+    pack = JSON.stringify(pack)
+    socket.send(pack)
 };
 
 socket.onmessage = function (event) {
     console.log(`[message] Data received from server: ${event.data}`);
-    var dt = JSON.parse(event.data.replace(/'/g, '"'))
-    pos = dt.fen
-    game.load(dt.fen)
-    board.position(dt.fen)
-    if (dt.orientation != board.orientation) {
-        board.flip()
+    if (event.data == 'OK') {
+        var pack = {type: 'GET', roomid: id};
+        pack = JSON.stringify(pack)
+        socket.send(pack)
+    } else {
+        var dt = JSON.parse(event.data.replace(/'/g, '"'))
+        if (dt.type == 'GET') {
+            pos = dt.fen
+            game.load(dt.fen)
+            board.position(dt.fen)
+            if (dt.orientation != orient) {
+                board.flip()
+            }
+        }
     }
-
 };
 
 socket.onclose = function (event) {
@@ -43,8 +52,8 @@ function onDragStart(source, piece, position, orientation) {
     if (game.game_over()) return false
 
     // only pick up pieces for the side to move
-    if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-        (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
+    if ((orient === 'white' && piece.search(/^b/) !== -1) ||
+        (orient === 'black' && piece.search(/^w/) !== -1)) {
         return false
     }
 }
@@ -98,7 +107,9 @@ function updateStatus() {
         if (game.in_check()) {
             status += ', ' + moveColor + ' is in check'
         }
-        socket.send(game.fen());
+        var pack = {type: 'UPDATE', roomid: id, fen: game.fen()};
+        pack = JSON.stringify(pack)
+        socket.send(pack);
     }
     $status.text(status)
 

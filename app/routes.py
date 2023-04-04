@@ -7,43 +7,14 @@ from app import app, render_template
 from flask import request, jsonify, make_response, redirect
 from app.data.db_session import create_session
 from app.data.__all_models import users, rooms
+from app.socketproto import *
+from app.funcs import *
 
 sock = flask_sock.Sock(app)
 MAX_GAMES = 9999
 ROOM_IDS_RANGE = 10 ** 10
 USER_IDS_RANGE = 10 ** 10
 db_sess = create_session()
-
-
-# FUNCTIONS
-
-def sha512(Password):
-    HashedPassword = hashlib.sha512(Password.encode('utf-8')).hexdigest()
-    return HashedPassword
-
-
-def account_check(req):
-    a = request.cookies.get('session', 0)
-
-    if a:
-        res = db_sess.query(users.User).filter(users.User.session == a).all()
-        if len(res) == 1:
-            return res[0].glob_id
-    return False
-
-
-def get_username(request):
-    id = account_check(request)
-    username = db_sess.query(users.User.name).filter(users.User.glob_id == id).first()
-    if username:
-        return username[0]
-    else:
-        return ''
-
-
-def get_orientation(request):
-    account = account_check(request)
-
 
 # ERROR HANDLERS
 ...
@@ -60,26 +31,6 @@ def index():
 def game():
     id = request.values.get('id', 0)
     account = account_check(request)
-    if id and account:
-        room = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == id).all()
-        if room:
-            room = room[0]
-            if room.w == account or room.b == account:
-                ...
-            elif not room.w:
-                room.w = account
-            elif not room.b:
-                room.b = account
-            else:
-                return redirect('/')
-
-            db_sess.commit()
-        else:
-            return redirect('/')
-    elif not account:
-        return redirect('/login')
-    else:
-        return redirect('/')
     return render_template('game.html', cur_user=get_username(request))
 
 
@@ -172,43 +123,23 @@ def profile():
         return redirect('/signup')
 
 
-# SOCKETS
-
-@sock.route('/gamesock')
-def handle(ws):
-    account = account_check(request)
-    data = ws.receive()
-    if data == 'null':
-        print('closing')
-        ws.close()
-    else:
-        print(data)
-        room = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == data).all()[0]
-        # w_us = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == int(room.w)).first()
-        # b_us = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == int(room.b)).first()
-        jdt = {"fen": room.data, "orientation": "white" if room.w == account else "black"}
-
-        ws.send(jdt)
-        print('STARTED', data)
-        print(jdt)
-        while True:
-            data = ws.receive(timeout=0.01)
-            if not data:
-                continue
-            if data.count('/') == 7:
-                room.data = data
-                db_sess.commit()
-            elif data == 'draw':
-                ...
-            elif data == 'checkmate':
-                ...
-            print(data)
-            jdt = {"fen": room.data, "orientation": "white" if room.w == account else "black"}
-            ws.send(jdt)
-
-
 @app.route('/news', methods=['POST', 'GET'])
 def news(request):
     # data = db_sess.query(news.New.title, news.New.description, news.New.date, news.New.topic, news.New.url).all()
     # return render_template('news.html', data=data, cur_user=get_username(request))
     return
+
+
+# SOCKETS
+
+@sock.route('/gamesock')
+def handle(ws):
+    while True:
+        data = ws.receive()
+        result = socketdatacheck(data, request)
+        print(result)
+        if result:
+            ws.send(result)
+        else:
+            ...
+            #ws.send('Something went wrong')
