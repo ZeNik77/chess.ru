@@ -8,6 +8,7 @@ db_sess = create_session()
 
 
 def socketdatacheck(data, request):
+    lobbyflg = 0
     if not data:
         return False
     print(data)
@@ -24,19 +25,19 @@ def socketdatacheck(data, request):
         return False
     else:
         room = room[0]
+    id = account_check(request)
     w_user = db_sess.query(users.User).filter(users.User.glob_id == room.w).all()
     if not w_user:
         if DEBUG:
             print('white user not found')
-        return False
-    w_user = w_user[0]
+        w_user = None
+    w_user = w_user[0] if w_user else None
     b_user = db_sess.query(users.User).filter(users.User.glob_id == room.b).all()
     if not b_user:
         if DEBUG:
             print('black user not found')
-        return False
-    b_user = b_user[0]
-    id = account_check(request)
+        b_user = None
+    b_user = b_user[0] if b_user else None
     if type == 'JOIN':
         if room.w == id or room.b == id:
             if DEBUG:
@@ -70,9 +71,12 @@ def socketdatacheck(data, request):
         db_sess.commit()
         return 'OK'
     elif type == 'GET':
-        pack = {'type': 'GET', 'fen': room.data, 'orientation': 'white' if room.w == id else 'black'}
+        pack = {'type': 'GET', 'fen': room.data, 'orientation': 'white' if room.w == id else 'black',
+                'lobby': True if not w_user or not b_user else False}
         return json.dumps(pack)
     elif type == 'END':
+        if not w_user or not b_user:
+            return False
         if not endtype:
             if DEBUG:
                 print('endtype value has not been set')

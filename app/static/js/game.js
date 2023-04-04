@@ -7,6 +7,7 @@ var urlParams = new URLSearchParams(window.location.search);
 var id = urlParams.get('id')
 var pos = 'start';
 var orient = 'white';
+var state = 'lobby';
 socket.onopen = function (e) {
     console.log("[open] Connection established");
     var pack = {type: 'JOIN', roomid: id};
@@ -29,6 +30,10 @@ socket.onmessage = function (event) {
             if (dt.orientation != orient) {
                 board.flip()
             }
+            if (!dt.lobby) {
+                state = 'game';
+            }
+            updateStatus()
         }
     }
 };
@@ -49,7 +54,7 @@ socket.onerror = function (error) {
 
 function onDragStart(source, piece, position, orientation) {
     // do not pick up pieces if the game is over
-    if (game.game_over()) return false
+    if (game.game_over() || state != 'game') return false
 
     // only pick up pieces for the side to move
     if ((orient === 'white' && piece.search(/^b/) !== -1) ||
@@ -111,7 +116,12 @@ function updateStatus() {
         pack = JSON.stringify(pack)
         socket.send(pack);
     }
-    $status.text(status)
+    console.log(state)
+    if (state == 'game') {
+        $status.text(status)
+    } else {
+        $status.text('Lobby mode')
+    }
 
 
 }
@@ -125,5 +135,4 @@ var config = {
     onSnapEnd: onSnapEnd
 }
 board = Chessboard('myBoard', config)
-
 updateStatus()
