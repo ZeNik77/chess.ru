@@ -27,7 +27,9 @@ socket.onmessage = function (event) {
             pos = dt.fen
             game.load(dt.fen)
             board.position(dt.fen)
+            console.log(orient)
             if (dt.orientation != orient) {
+                orient = dt.orientation
                 board.flip()
             }
             if (!dt.lobby) {
@@ -94,13 +96,22 @@ function updateStatus() {
     // checkmate?
     if (game.in_checkmate()) {
         status = 'Game over, ' + moveColor + ' is in checkmate.'
-        socket.send('checkmate');
+        var pack = {type: 'END', roomid: id, wintype: 'win', winner: game.turn()};
+        pack = JSON.stringify(pack)
+        socket.send(pack);
+        state = 'end'
+        $status.text('WIN ' + game.turn())
     }
 
     // draw?
     else if (game.in_draw()) {
         status = 'Game over, drawn position'
-        socket.send('draw');
+        var pack = {type: 'END', roomid: id, wintype: 'draw'};
+        pack = JSON.stringify(pack)
+        socket.send(pack);
+        state = 'end'
+        $status.text('DRAW')
+
 
     }
 

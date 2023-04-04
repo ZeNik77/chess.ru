@@ -93,6 +93,14 @@ def socketdatacheck(data, request):
                 return False
             db_sess.commit()
             return 'OK'
+        elif endtype == 'draw':
+            w_user.rate += room.cost // 2
+            b_user.rate += room.cost // 2
+            db_sess.commit()
+        else:
+            if DEBUG:
+                print('invalid wintype')
+            return False
     else:
         if DEBUG:
             print("Invalid request type")
