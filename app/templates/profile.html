@@ -15,9 +15,9 @@
                 <div class="card-body">
                     <p><strong>Rating:</strong> {{ data[1] }}</p>
                 </div>
-                <div class="card-footer">
-                    <button style="width: 150px; height: 50px; font-size:18pt">Здесь будет кнопка</button>
-                </div>
+                <form method="post" action="{{ url_for('profile') }}">
+                    <button type="submit">Выход</button>
+                </form>
             </div>
         </div>
     </div>

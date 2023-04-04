@@ -157,17 +157,25 @@ def leaderboard():
     return render_template('leaderboard.html', leaderboard_data=leaderboard_data, cur_user=get_username(request))
 
 
-@app.route('/profile', methods=['GET'])
+@app.route('/profile', methods=['GET', 'POST'])
 def profile():
     id = account_check(request)
     if id:
-        dataxd = db_sess.query(users.User.name, users.User.rating).filter(users.User.glob_id == id).first()
-        print(type(dataxd))
-        if len(dataxd):
-            print('\n\n\n', dataxd, '\n\n\n')
-            return render_template('profile.html', data=dataxd, cur_user=get_username(request))
+        if request.method == 'POST':            
+            user = db_sess.query(users.User).filter(users.User.glob_id==id).first()
+            if user:
+                user.session = ''
+                db_sess.commit()
+                print('\n\n\nhere\n\n\n')
+                return redirect('/login')
         else:
-            return "no data"
+            dataxd = db_sess.query(users.User.name, users.User.rating).filter(users.User.glob_id == id).first()
+            print(type(dataxd))
+            if len(dataxd):
+                #print('\n\n\n', dataxd, '\n\n\n')
+                return render_template('profile.html', data=dataxd, cur_user=get_username(request))
+            else:
+                return "no data"
     else:
         return redirect('/signup')
 
