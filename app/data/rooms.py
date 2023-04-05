@@ -18,5 +18,6 @@ class Room(SqlAlchemyBase):
                              index=True, unique=False, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
+    state = sqlalchemy.Column(sqlalchemy.String)
     data = sqlalchemy.Column(sqlalchemy.String,
                              index=True, unique=False, nullable=True)

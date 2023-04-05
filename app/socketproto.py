@@ -4,14 +4,12 @@ from app.data import rooms
 from app.data.db_session import create_session
 from app.funcs import *
 
-db_sess = create_session()
 
-
-def socketdatacheck(data, request):
+def socketdatacheck(data, request, db_sess):
     lobbyflg = 0
     if not data:
         return False
-    print(data)
+    # print(data)
     data = json.loads(data)
     type = data['type']
     room_id = int(data['roomid'])
@@ -60,6 +58,8 @@ def socketdatacheck(data, request):
             if DEBUG:
                 print('invalid color value')
             return False
+        if room.b and room.w:
+            room.state = 'game'
         db_sess.commit()
         return 'OK'
     elif type == 'UPDATE':
@@ -69,10 +69,14 @@ def socketdatacheck(data, request):
             return False
         room.data = fen
         db_sess.commit()
-        return 'OK'
+        state = room.state
+        pack = {'type': 'GET', 'fen': room.data, 'orientation': 'black' if room.b == id else 'white',
+                'state': state, 'perms': 'player' if room.w == id or room.b == id else 'observer'}
+        return json.dumps(pack)
     elif type == 'GET':
-        pack = {'type': 'GET', 'fen': room.data, 'orientation': 'white' if room.w == id else 'black',
-                'lobby': True if not w_user or not b_user else False}
+        state = room.state
+        pack = {'type': 'GET', 'fen': room.data, 'orientation': 'black' if room.b == id else 'white',
+                'state': state, 'perms': 'player' if room.w == id or room.b == id else 'observer'}
         return json.dumps(pack)
     elif type == 'END':
         if not w_user or not b_user:

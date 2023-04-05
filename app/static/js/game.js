@@ -8,6 +8,7 @@ var id = urlParams.get('id')
 var pos = 'start';
 var orient = 'white';
 var state = 'lobby';
+var perms = ''
 socket.onopen = function (e) {
     console.log("[open] Connection established");
     var pack = {type: 'JOIN', roomid: id};
@@ -16,28 +17,29 @@ socket.onopen = function (e) {
 };
 
 socket.onmessage = function (event) {
-    console.log(`[message] Data received from server: ${event.data}`);
-    if (event.data == 'OK') {
-        var pack = {type: 'GET', roomid: id};
-        pack = JSON.stringify(pack)
-        socket.send(pack)
-    } else {
+    //console.log(`[message] Data received from server: ${event.data}`);
+    if (event.data != 'OK') {
         var dt = JSON.parse(event.data.replace(/'/g, '"'))
         if (dt.type == 'GET') {
-            pos = dt.fen
-            game.load(dt.fen)
-            board.position(dt.fen)
-            console.log(orient)
-            if (dt.orientation != orient) {
-                orient = dt.orientation
-                board.flip()
+            if (pos != dt.fen) {
+                if (dt.orientation != orient) {
+                    orient = dt.orientation
+                    board.flip()
+                }
+                pos = dt.fen
+                game.load(dt.fen)
+                board.position(dt.fen)
             }
-            if (!dt.lobby) {
-                state = 'game';
-            }
+            //console.log(orient)
+
+            state = dt.state
+            perms = dt.perms
             updateStatus()
         }
     }
+    var pack = {type: 'GET', roomid: id};
+    pack = JSON.stringify(pack)
+    socket.send(pack)
 };
 
 socket.onclose = function (event) {
@@ -56,11 +58,12 @@ socket.onerror = function (error) {
 
 function onDragStart(source, piece, position, orientation) {
     // do not pick up pieces if the game is over
-    if (game.game_over() || state != 'game') return false
+    if (game.game_over() || state != 'game' || perms != 'player') return false
 
     // only pick up pieces for the side to move
-    if ((orient === 'white' && piece.search(/^b/) !== -1) ||
-        (orient === 'black' && piece.search(/^w/) !== -1)) {
+    console.log(game.turn(), piece.search(/^w/))
+    if (((orient === 'white' && game.turn() != 'w') || (orient === 'white' && piece.search(/^w/) === -1)) ||
+        ((orient === 'black' && game.turn() != 'b') || (orient === 'black' && piece.search(/^b/) === -1))) {
         return false
     }
 }
@@ -75,7 +78,9 @@ function onDrop(source, target) {
 
     // illegal move
     if (move === null) return 'snapback'
-
+    var pack = {type: 'UPDATE', roomid: id, fen: game.fen()};
+    pack = JSON.stringify(pack)
+    socket.send(pack);
     updateStatus()
 }
 
@@ -123,11 +128,9 @@ function updateStatus() {
         if (game.in_check()) {
             status += ', ' + moveColor + ' is in check'
         }
-        var pack = {type: 'UPDATE', roomid: id, fen: game.fen()};
-        pack = JSON.stringify(pack)
-        socket.send(pack);
+
     }
-    console.log(state)
+    // console.log(state)
     if (state == 'game') {
         $status.text(status)
     } else {

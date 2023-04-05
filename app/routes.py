@@ -9,11 +9,10 @@ from app.data.db_session import create_session
 from app.data.__all_models import users, rooms
 from app.socketproto import *
 from app.funcs import *
+from app.config import *
 
 sock = flask_sock.Sock(app)
-MAX_GAMES = 9999
-ROOM_IDS_RANGE = 10 ** 10
-USER_IDS_RANGE = 10 ** 10
+
 db_sess = create_session()
 
 # ERROR HANDLERS
@@ -43,8 +42,7 @@ def newroom():
             room = rooms.Room()
             room.glob_id = id = random.randint(1, ROOM_IDS_RANGE)
             room.data = 'start'
-            room.type = '1v1'
-            room.users = '{}'
+            room.state = 'lobby'
             db_sess.add(room)
             db_sess.commit()
             cnt = json.dumps({'id': id})
@@ -112,8 +110,8 @@ def leaderboard():
 def profile():
     id = account_check(request)
     if id:
-        if request.method == 'POST':            
-            user = db_sess.query(users.User).filter(users.User.glob_id==id).first()
+        if request.method == 'POST':
+            user = db_sess.query(users.User).filter(users.User.glob_id == id).first()
             if user:
                 user.session = ''
                 db_sess.commit()
@@ -123,7 +121,7 @@ def profile():
             dataxd = db_sess.query(users.User.name, users.User.rating).filter(users.User.glob_id == id).first()
             print(type(dataxd))
             if len(dataxd):
-                #print('\n\n\n', dataxd, '\n\n\n')
+                # print('\n\n\n', dataxd, '\n\n\n')
                 return render_template('profile.html', data=dataxd, cur_user=get_username(request))
             else:
                 return "no data"
@@ -142,12 +140,13 @@ def news(request):
 
 @sock.route('/gamesock')
 def handle(ws):
+    db_sess2 = create_session()
     while True:
         data = ws.receive()
-        result = socketdatacheck(data, request)
-        print(result)
+        result = socketdatacheck(data, request, db_sess2)
+        # print(result)
         if result:
             ws.send(result)
         else:
             ...
-            #ws.send('Something went wrong')
+            # ws.send('Something went wrong')
