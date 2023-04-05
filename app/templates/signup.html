@@ -1,23 +1,38 @@
 {% extends "base.html" %}
-{% block body %}
+{% block head %}
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+{% endblock %}
 
-<input type="text" id="name" style="width: 300px; height: 50px; font-size:18pt;"> <br>
-<input type="text" id="mail" style="width: 300px; height: 50px; font-size:18pt;"> <br>
-<input type="text" id="password" style="width: 300px; height: 50px; font-size:18pt;"> <br>
-<script src="/static/js/modules/sha512.js"></script>
-<script>
-    function senddt() {
-        var $name = document.getElementById('name')
-        var $mail = document.getElementById('mail')
-        var $pass = document.getElementById('password')
-        var name = $name.value
-        var mail = $mail.value
-        var pass = $pass.value
-        var pack = {name: name, pass: sha512(pass), mail: mail}
-        sendinfo('/signup','POST', function (ths) {
-            if (ths.responseText) {location.href = '/login'}
-        }, JSON.stringify(pack))
-    }
-</script>
-<button style="width: 150px; height: 50px; font-size:18pt;" onclick="senddt()">Отправить</button>
+{% block body %}
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <h2 class="text-center">Регистрация</h2>
+          <form>
+            <div class="form-group">
+              <label for="username">Имя пользователя</label>
+              <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="password">Пароль</label>
+              <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+              <label for="confirm-password">Подтвердите пароль</label>
+              <input type="password" class="form-control" id="confirm-password" name="confirm-password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Зарегистрироваться</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 {% endblock %}
