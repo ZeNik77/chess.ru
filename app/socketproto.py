@@ -37,28 +37,15 @@ def socketdatacheck(data, request, db_sess):
         b_user = None
     b_user = b_user[0] if b_user else None
     if type == 'JOIN':
-        if room.w == id or room.b == id:
-            if DEBUG:
-                print('user already in room')
-            return 'OK'
-        if color == None:
+        flg_in = 1 if room.w == id or room.b == id else 0
+        if not flg_in:
             if not room.w:
                 room.w = id
             elif not room.b:
                 room.b = id
             else:
-                if DEBUG:
-                    print('all colors busy')
-                return False
-        elif color == 'w':
-            room.w = id
-        elif color == 'b':
-            room.b = id
-        else:
-            if DEBUG:
-                print('invalid color value')
-            return False
-        if room.b and room.w:
+                return 'OK'
+        if room.w and room.b:
             room.state = 'game'
         db_sess.commit()
         return 'OK'
@@ -76,7 +63,8 @@ def socketdatacheck(data, request, db_sess):
     elif type == 'GET':
         state = room.state
         pack = {'type': 'GET', 'fen': room.data, 'orientation': 'black' if room.b == id else 'white',
-                'state': state, 'perms': 'player' if room.w == id or room.b == id else 'observer'}
+                'state': state,
+                'perms': 'player' if (room.w == id and room.w) or (room.b == id and room.b) else 'observer'}
         return json.dumps(pack)
     elif type == 'END':
         if not w_user or not b_user:

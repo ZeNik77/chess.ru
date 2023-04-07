@@ -25,11 +25,13 @@ socket.onmessage = function (event) {
                 orient = dt.orientation
                 board.flip()
             }
+            if (dt.fen != pos) {
+                game.load(dt.fen)
+                board.position(dt.fen)
+            }
             pos = dt.fen
-            game.load(dt.fen)
-            board.position(dt.fen)
-            //console.log(orient)
 
+            //console.log(orient)
             state = dt.state
             perms = dt.perms
             updateStatus()
