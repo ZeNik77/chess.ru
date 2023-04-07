@@ -23,8 +23,20 @@ db_sess = create_session()
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('index.html', cur_user=get_username(request))
+    id = account_check(request)
+    g = db_sess.query(rooms.Room).all()
+    data = []
+    if id and g:
+        rating = db_sess.query(users.User.rating).filter(users.User.glob_id == id).first()[0]
+        games = db_sess.query(rooms.Room).filter(rooms.Room.state == 'lobby').all()
+        games = sorted(games, key=lambda x: abs(rating - db_sess.query(users.User.rating).filter(users.User.glob_id == x.w+x.b).first()[0]))[:10]
+        for el in games:
+            user = get_user(el.w+el.b)
+            data.append(['Классические шахматы', user.name, user.rating, 'Неограниченно', el.glob_id])
+    return render_template('index.html', cur_user=get_username(request), games=data)
 
+def get_user(id):
+    return db_sess.query(users.User).filter(users.User.glob_id == id).first()
 
 @app.route('/game')
 def game():

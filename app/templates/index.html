@@ -8,7 +8,28 @@
         <a href="#" class="btn btn-primary mt-4" onclick="location.href='/game?id='+getnewroom()">Начать игру</a>
       </div>
     </div>
-
+    {% if games %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Игра</th>
+          <th scope="col">Соперник</th>
+          <th scope="col">Рейтинг</th>
+          <th scope="col">Время</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for el in games %}
+        <tr>
+          <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[0] }}</a></td>
+          <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[1] }}</a></td>
+          <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[2] }}</a></td>
+          <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[3] }}</a></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    {% endif %}
   <div class="container my-5">
     <div class="row">
       <div class="col-md-4">

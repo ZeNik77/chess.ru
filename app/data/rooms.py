@@ -11,9 +11,9 @@ class Room(SqlAlchemyBase):
                                 unique=True)
     key = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     w = sqlalchemy.Column(sqlalchemy.Integer,
-                          unique=False, nullable=True)
+                          unique=False, nullable=True, default=0)
     b = sqlalchemy.Column(sqlalchemy.Integer,
-                          unique=False, nullable=True)
+                          unique=False, nullable=True, default=0)
     cost = sqlalchemy.Column(sqlalchemy.Integer,
                              index=True, unique=False, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
