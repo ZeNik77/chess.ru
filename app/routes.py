@@ -119,7 +119,7 @@ def profile():
                     # print('\n\n\nhere\n\n\n')
                     return redirect('/login')
             else:
-                return redirect('/profile')
+                return redirect('/edit_profile')
         else:
             user = db_sess.query(users.User.name, users.User.rating, users.User.about, users.User.email).filter(users.User.glob_id == id).first()
             # print(type(user))
@@ -130,6 +130,25 @@ def profile():
                 return "no data"
     else:
         return redirect('/signup')
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+def edit_profile():
+    id = account_check(request)
+    if id:
+        user = db_sess.query(users.User).filter(users.User.glob_id == id).first()
+        if request.method == 'POST':
+            if 'confirm' in request.form:
+                if user:
+                    user.name = request.form['name']
+                    user.about = request.form['about']
+                    db_sess.commit()
+                    return redirect('/profile')
+                else:
+                    return redirect('/profile')
+            if 'cancel' in request.form:
+                return redirect('/profile')
+        print('\n\n\n', user.name, '\n\n\n')
+        return render_template('edit_profile.html', cur_user=user.name, about=user.about, email=user.email, rating=user.rating)
 
 
 @app.route('/news', methods=['POST', 'GET'])
