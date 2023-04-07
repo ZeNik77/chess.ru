@@ -44,6 +44,8 @@ def newroom():
             room.data = 'start'
             room.state = 'lobby'
             room.cost = 10
+            room.w = 0
+            room.b = 0
             db_sess.add(room)
             db_sess.commit()
             cnt = json.dumps({'id': id})
@@ -122,15 +124,17 @@ def profile():
             else:
                 return redirect('/edit_profile')
         else:
-            user = db_sess.query(users.User.name, users.User.rating, users.User.about, users.User.email).filter(users.User.glob_id == id).first()
+            user = db_sess.query(users.User.name, users.User.rating, users.User.about, users.User.email).filter(
+                users.User.glob_id == id).first()
             # print(type(user))
             if len(user):
                 # print('\n\n\n', dataxd, '\n\n\n')
-                return render_template('profile.html', cur_user=user[0], rating=user[1], about=user[2], email=user[3]) 
+                return render_template('profile.html', cur_user=user[0], rating=user[1], about=user[2], email=user[3])
             else:
                 return "no data"
     else:
         return redirect('/signup')
+
 
 @app.route('/edit_profile', methods=['GET', 'POST'])
 def edit_profile():
@@ -149,11 +153,14 @@ def edit_profile():
             if 'cancel' in request.form:
                 return redirect('/profile')
         print('\n\n\n', user.name, '\n\n\n')
-        return render_template('edit_profile.html', cur_user=user.name, about=user.about, email=user.email, rating=user.rating)
+        return render_template('edit_profile.html', cur_user=user.name, about=user.about, email=user.email,
+                               rating=user.rating)
+
 
 @app.route('/about', methods=['GET'])
 def about():
     return render_template('about.html', cur_user=get_username(request))
+
 
 @app.route('/news', methods=['POST', 'GET'])
 def news(request):
