@@ -133,7 +133,8 @@ function updateStatus() {
     // console.log(state)
     if (state == 'game') {
         $status.text(status)
-    } else {
+    } else if (state == 'end') {}
+    else {
         $status.text('Lobby mode')
     }
 
