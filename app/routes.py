@@ -112,22 +112,44 @@ def profile():
     id = account_check(request)
     if id:
         if request.method == 'POST':
-            user = db_sess.query(users.User).filter(users.User.glob_id == id).first()
-            if user:
-                user.session = ''
-                db_sess.commit()
-                print('\n\n\nhere\n\n\n')
-                return redirect('/login')
+            if 'logout' in request.form:
+                user = db_sess.query(users.User).filter(users.User.glob_id == id).first()
+                if user:
+                    user.session = ''
+                    db_sess.commit()
+                    # print('\n\n\nhere\n\n\n')
+                    return redirect('/login')
+            else:
+                return redirect('/edit_profile')
         else:
-            dataxd = db_sess.query(users.User.name, users.User.rating).filter(users.User.glob_id == id).first()
-            print(type(dataxd))
-            if len(dataxd):
+            user = db_sess.query(users.User.name, users.User.rating, users.User.about, users.User.email).filter(users.User.glob_id == id).first()
+            # print(type(user))
+            if len(user):
                 # print('\n\n\n', dataxd, '\n\n\n')
-                return render_template('profile.html', data=dataxd, cur_user=get_username(request))
+                return render_template('profile.html', cur_user=user[0], rating=user[1], about=user[2], email=user[3]) 
             else:
                 return "no data"
     else:
         return redirect('/signup')
+
+@app.route('/edit_profile', methods=['GET', 'POST'])
+def edit_profile():
+    id = account_check(request)
+    if id:
+        user = db_sess.query(users.User).filter(users.User.glob_id == id).first()
+        if request.method == 'POST':
+            if 'confirm' in request.form:
+                if user:
+                    user.name = request.form['name']
+                    user.about = request.form['about']
+                    db_sess.commit()
+                    return redirect('/profile')
+                else:
+                    return redirect('/profile')
+            if 'cancel' in request.form:
+                return redirect('/profile')
+        print('\n\n\n', user.name, '\n\n\n')
+        return render_template('edit_profile.html', cur_user=user.name, about=user.about, email=user.email, rating=user.rating)
 
 
 @app.route('/news', methods=['POST', 'GET'])
