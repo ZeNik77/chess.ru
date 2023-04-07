@@ -141,7 +141,7 @@ def edit_profile():
             if 'confirm' in request.form:
                 if user:
                     user.name = request.form['name']
-                    user.about = request.form['about']
+                    user.about = request.form['de']
                     db_sess.commit()
                     return redirect('/profile')
                 else:
@@ -151,6 +151,9 @@ def edit_profile():
         print('\n\n\n', user.name, '\n\n\n')
         return render_template('edit_profile.html', cur_user=user.name, about=user.about, email=user.email, rating=user.rating)
 
+@app.route('/about', methods=['GET'])
+def about():
+    return render_template('about.html', cur_user=get_username(request))
 
 @app.route('/news', methods=['POST', 'GET'])
 def news(request):
