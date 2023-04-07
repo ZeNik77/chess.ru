@@ -12,7 +12,7 @@ class User(SqlAlchemyBase):
                                 unique=True)
     rating = sqlalchemy.Column(sqlalchemy.Integer)
     name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
-    about = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    about = sqlalchemy.Column(sqlalchemy.String, default='about', nullable=True)
     email = sqlalchemy.Column(sqlalchemy.String,
                               index=True, unique=True, nullable=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
