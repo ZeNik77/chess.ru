@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block body %}
-<div class="container-fluid bg-dark" style="background-image: url('https://media.discordapp.net/attachments/921063031482482689/1087796639890165780/AaiIjqBMCHg.png?width=746&height=670');">
+<div class="container-fluid bg-dark" style="background-image: url('https://media.discordapp.net/attachments/921063031482482689/1061715275726192714/image.png?width=317&height=527');">
     <div class="row justify-content-center align-items-center h-100">
       <div class="col-md-8 col-lg-6 text-center text-light">
         <h1 class="mb-4">Добро пожаловать на сайт шахмат!</h1>
         <p class="lead">Здесь вы можете играть в шахматы с другими игроками онлайн, общаться с ними и учиться у профессионалов.</p>
-        <a href="#" class="btn btn-primary mt-4">Начать игру</a>
+        <a href="#" class="btn btn-primary mt-4" onclick="location.href='/game?id='+getnewroom()">Начать игру</a>
       </div>
     </div>
   
@@ -41,56 +41,6 @@
     </div>
   </div>
   
-  <div class="container my-5">
-    <div class="row">
-      <div class="col-md-12">
-        <h2 class="mb-4">Популярные игры</h2>
-        <div class="row">
-          <div class="col-md-3">
-            <div class="card bg-light">
-              <img src="path/to/game1.jpg" class="card-img-top" alt="Игра 1">
-              <div class="card-body">
-                <h5 class="card-title">Название игры 1</h5>
-                <p class="card-text">Описание игры 1.</p>
-                <a href="#" class="btn btn-primary">Играть</a>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card bg-light">
-              <img src="path/to/game2.jpg" class="card-img-top" alt="Игра 2">
-              <div class="card-body">
-                <h5 class="card-title">Название игры 2</h5>
-<p class="card-text">Описание игры 2.</p>
-<a href="#" class="btn btn-primary">Играть</a>
-</div>
-</div>
-</div>
-<div class="col-md-3">
-<div class="card bg-light">
-<img src="path/to/game3.jpg" class="card-img-top" alt="Игра 3">
-<div class="card-body">
-<h5 class="card-title">Название игры 3</h5>
-<p class="card-text">Описание игры 3.</p>
-<a href="#" class="btn btn-primary">Играть</a>
-</div>
-</div>
-</div>
-<div class="col-md-3">
-<div class="card bg-light">
-<img src="path/to/game4.jpg" class="card-img-top" alt="Игра 4">
-<div class="card-body">
-<h5 class="card-title">Название игры 4</h5>
-<p class="card-text">Описание игры 4.</p>
-<a href="#" class="btn btn-primary">Играть</a>
-</div>
-</div>
-</div>
-</div>
-</div>
-
-  </div>
-</div>
 <div class="container my-5">
   <div class="row">
     <div class="col-md-6">
