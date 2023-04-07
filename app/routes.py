@@ -43,6 +43,7 @@ def newroom():
             room.glob_id = id = random.randint(1, ROOM_IDS_RANGE)
             room.data = 'start'
             room.state = 'lobby'
+            room.cost = 10
             db_sess.add(room)
             db_sess.commit()
             cnt = json.dumps({'id': id})

@@ -21,3 +21,5 @@ class Room(SqlAlchemyBase):
     state = sqlalchemy.Column(sqlalchemy.String)
     data = sqlalchemy.Column(sqlalchemy.String,
                              index=True, unique=False, nullable=True)
+    cost = sqlalchemy.Column(sqlalchemy.Integer,
+                                unique=True)
