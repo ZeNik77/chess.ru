@@ -21,15 +21,13 @@ socket.onmessage = function (event) {
     if (event.data != 'OK') {
         var dt = JSON.parse(event.data.replace(/'/g, '"'))
         if (dt.type == 'GET') {
-            if (pos != dt.fen) {
-                if (dt.orientation != orient) {
-                    orient = dt.orientation
-                    board.flip()
-                }
-                pos = dt.fen
-                game.load(dt.fen)
-                board.position(dt.fen)
+            if (dt.orientation != orient) {
+                orient = dt.orientation
+                board.flip()
             }
+            pos = dt.fen
+            game.load(dt.fen)
+            board.position(dt.fen)
             //console.log(orient)
 
             state = dt.state
