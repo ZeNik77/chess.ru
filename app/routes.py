@@ -141,7 +141,7 @@ def edit_profile():
             if 'confirm' in request.form:
                 if user:
                     user.name = request.form['name']
-                    user.about = request.form['de']
+                    user.about = request.form['about']
                     db_sess.commit()
                     return redirect('/profile')
                 else:
