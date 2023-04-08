@@ -15,7 +15,7 @@ def socketdatacheck(data, request, db_sess):
     room_id = int(data['roomid'])
     color = data.get('color', None)
     fen = data.get('fen', None)
-    endtype = data.get('endtype', None)
+    wintype = data.get('wintype', None)
     room = db_sess.query(rooms.Room).filter(rooms.Room.glob_id == room_id).all()
     if not room:
         if DEBUG:
@@ -66,28 +66,30 @@ def socketdatacheck(data, request, db_sess):
                 'state': state,
                 'perms': 'player' if (room.w == id and room.w) or (room.b == id and room.b) else 'observer'}
         return json.dumps(pack)
-    elif type == 'END':
+    elif type == 'END' and room.state != 'end':
         if not w_user or not b_user:
             return False
-        if not endtype:
+        if not wintype:
             if DEBUG:
                 print('endtype value has not been set')
             return False
-        if endtype == 'win':
+        if wintype == 'win':
             winner = data.get('winner', None)
+            room.state = 'end'
             if winner == 'w':
-                w_user.rate += room.cost
+                w_user.rating += room.cost
             elif winner == 'b':
-                b_user.rate += room.cost
+                b_user.rating += room.cost
             else:
                 if DEBUG:
                     print('invalid winner value')
+                db_sess.commit()
                 return False
             db_sess.commit()
             return 'OK'
-        elif endtype == 'draw':
-            w_user.rate += room.cost // 2
-            b_user.rate += room.cost // 2
+        elif wintype == 'draw':
+            w_user.rating += room.cost // 2
+            b_user.rating += room.cost // 2
             db_sess.commit()
         else:
             if DEBUG:

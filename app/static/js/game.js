@@ -30,9 +30,9 @@ socket.onmessage = function (event) {
                 board.position(dt.fen)
             }
             pos = dt.fen
+            state = dt.state
 
             //console.log(orient)
-            state = dt.state
             perms = dt.perms
             updateStatus()
         }
@@ -97,9 +97,12 @@ function updateStatus() {
     if (game.turn() === 'b') {
         moveColor = 'Black'
     }
-
+    if (state==='end'){
+        return
+    }
     // checkmate?
     if (game.in_checkmate()) {
+        console.log(state)
         status = 'Game over, ' + moveColor + ' is in checkmate.'
         var pack = {type: 'END', roomid: id, wintype: 'win', winner: game.turn()};
         pack = JSON.stringify(pack)
@@ -109,7 +112,7 @@ function updateStatus() {
     }
 
     // draw?
-    else if (game.in_draw()) {
+    else if (game.in_draw() && state === 'game') {
         status = 'Game over, drawn position'
         var pack = {type: 'END', roomid: id, wintype: 'draw'};
         pack = JSON.stringify(pack)
