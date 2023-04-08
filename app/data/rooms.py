@@ -1,4 +1,6 @@
 import datetime
+import time
+
 import sqlalchemy
 from .db_session import SqlAlchemyBase
 
@@ -17,6 +19,11 @@ class Room(SqlAlchemyBase):
     cost = sqlalchemy.Column(sqlalchemy.Integer)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
+    started_time = sqlalchemy.Column(sqlalchemy.Integer,
+                                     default=time.time())
     state = sqlalchemy.Column(sqlalchemy.String)
+    wtimer = sqlalchemy.Column(sqlalchemy.Integer, default=None)
+    btimer = sqlalchemy.Column(sqlalchemy.Integer, default=None)
+    type = sqlalchemy.Column(sqlalchemy.Integer, default=1)
     data = sqlalchemy.Column(sqlalchemy.String,
                              index=True, unique=False, nullable=True)

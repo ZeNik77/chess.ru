@@ -29,14 +29,17 @@ def index():
     if id and g:
         rating = db_sess.query(users.User.rating).filter(users.User.glob_id == id).first()[0]
         games = db_sess.query(rooms.Room).filter(rooms.Room.state == 'lobby').all()
-        games = sorted(games, key=lambda x: abs(rating - db_sess.query(users.User.rating).filter(users.User.glob_id == x.w+x.b).first()[0]))[:10]
+        games = sorted(games, key=lambda x: abs(
+            rating - db_sess.query(users.User.rating).filter(users.User.glob_id == x.w + x.b).first()[0]))[:10]
         for el in games:
-            user = get_user(el.w+el.b)
+            user = get_user(el.w + el.b)
             data.append(['Классические шахматы', user.name, user.rating, 'Неограниченно', el.glob_id])
     return render_template('index.html', cur_user=get_username(request), games=data)
 
+
 def get_user(id):
     return db_sess.query(users.User).filter(users.User.glob_id == id).first()
+
 
 @app.route('/game')
 def game():
@@ -45,9 +48,10 @@ def game():
     return render_template('game.html', cur_user=get_username(request))
 
 
-@app.route('/newroom', methods=['GET'])
+@app.route('/newroom', methods=['POST'])
 def newroom():
     account = account_check(request)
+    type = request.json.get('type', None)
     a = int(request.cookies.get('rooms_created', 0))
     if account:
         if a < MAX_GAMES:
@@ -58,6 +62,9 @@ def newroom():
             room.cost = 10
             room.w = 0
             room.b = 0
+            room.type = type
+            room.wtimer = 300
+            room.btimer = 300
             db_sess.add(room)
             db_sess.commit()
             cnt = json.dumps({'id': id})

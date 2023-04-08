@@ -9,6 +9,9 @@ var pos = 'start';
 var orient = 'white';
 var state = 'lobby';
 var perms = ''
+var $t1 = $('#t1') // timer 1
+var $t2 = $('#t2') // timer 2
+
 socket.onopen = function (e) {
     console.log("[open] Connection established");
     var pack = {type: 'JOIN', roomid: id};
@@ -31,6 +34,13 @@ socket.onmessage = function (event) {
             }
             pos = dt.fen
             state = dt.state
+            if (orient == 'white') {
+                $t1.text(dt.btimer)
+                $t2.text(dt.wtimer)
+            } else {
+                $t1.text(dt.wtimer)
+                $t2.text(dt.btimer)
+            }
 
             //console.log(orient)
             perms = dt.perms
@@ -55,7 +65,13 @@ socket.onclose = function (event) {
 socket.onerror = function (error) {
     console.log(error);
 };
-
+function WIN(winner){
+    var pack = {type: 'END', roomid: id, wintype: 'win', winner: game.turn()};
+    pack = JSON.stringify(pack)
+    socket.send(pack);
+    state = 'end'
+    $status.text('WIN ' + winner)
+}
 function onDragStart(source, piece, position, orientation) {
     // do not pick up pieces if the game is over
     if (game.game_over() || state != 'game' || perms != 'player') return false
@@ -97,18 +113,14 @@ function updateStatus() {
     if (game.turn() === 'b') {
         moveColor = 'Black'
     }
-    if (state==='end'){
+    if (state === 'end') {
         return
     }
     // checkmate?
     if (game.in_checkmate()) {
         console.log(state)
         status = 'Game over, ' + moveColor + ' is in checkmate.'
-        var pack = {type: 'END', roomid: id, wintype: 'win', winner: game.turn()};
-        pack = JSON.stringify(pack)
-        socket.send(pack);
-        state = 'end'
-        $status.text('WIN ' + game.turn())
+        WIN(game.turn())
     }
 
     // draw?
@@ -136,8 +148,8 @@ function updateStatus() {
     // console.log(state)
     if (state == 'game') {
         $status.text(status)
-    } else if (state == 'end') {}
-    else {
+    } else if (state == 'end') {
+    } else {
         $status.text('Lobby mode')
     }
 

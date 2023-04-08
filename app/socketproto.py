@@ -1,4 +1,6 @@
 import json
+import time
+
 from app.config import *
 from app.data import rooms
 from app.data.db_session import create_session
@@ -24,6 +26,7 @@ def socketdatacheck(data, request, db_sess):
     else:
         room = room[0]
     id = account_check(request)
+    activeside = room.data.split()[1] if room.data != 'start' else 'w'
     w_user = db_sess.query(users.User).filter(users.User.glob_id == room.w).all()
     if not w_user:
         if DEBUG:
@@ -37,6 +40,7 @@ def socketdatacheck(data, request, db_sess):
         b_user = None
     b_user = b_user[0] if b_user else None
     if type == 'JOIN':
+        flg_ready = 1 if room.w and room.b else 0
         flg_in = 1 if room.w == id or room.b == id else 0
         if not flg_in:
             if not room.w:
@@ -45,8 +49,9 @@ def socketdatacheck(data, request, db_sess):
                 room.b = id
             else:
                 return 'OK'
-        if room.w and room.b:
+        if room.w and room.b and not flg_ready:
             room.state = 'game'
+            room.started_time = time.time()
         db_sess.commit()
         return 'OK'
     elif type == 'UPDATE':
@@ -62,9 +67,39 @@ def socketdatacheck(data, request, db_sess):
         return json.dumps(pack)
     elif type == 'GET':
         state = room.state
+        started = room.started_time
+        totalpast = time.time() - started
+        totaltime = TIMEPTYPE[room.type]
+        wpast = totaltime - room.wtimer
+        bpast = totaltime - room.btimer
+        if room.state == 'game':
+            if activeside == 'w':
+                room.wtimer = totaltime - (totalpast - bpast)
+            else:
+                room.btimer = totaltime - (totalpast - wpast)
+        elif room.state == 'lobby':
+            room.wtimer = totaltime
+            room.btimer = totaltime
+
+        db_sess.commit()
+        if room.state != 'end':
+            if room.wtimer <= 0 and room.btimer <= 0:
+                room.state = 'end'
+                if room.wtimer < room.btimer:
+                    b_user.rating += room.cost
+                else:
+                    w_user.rating += room.cost
+            elif room.wtimer <= 0:
+                room.state = 'end'
+                b_user.rating += room.cost
+            elif room.btimer <= 0:
+                room.state = 'end'
+                w_user.rating += room.cost
+        db_sess.commit()
         pack = {'type': 'GET', 'fen': room.data, 'orientation': 'black' if room.b == id else 'white',
                 'state': state,
-                'perms': 'player' if (room.w == id and room.w) or (room.b == id and room.b) else 'observer'}
+                'perms': 'player' if (room.w == id and room.w) or (room.b == id and room.b) else 'observer',
+                'wtimer': room.wtimer, 'btimer': room.btimer}
         return json.dumps(pack)
     elif type == 'END' and room.state != 'end':
         if not w_user or not b_user:
