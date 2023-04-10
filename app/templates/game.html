@@ -12,14 +12,23 @@
 {% endblock %}
 
 {% block body %}
-<div class="container-fluid bg-dark">
-    <h1 id="status"></h1>
-    <p id="t1" style="text-align: center; font-size: 46px"></p>
-    <div id="myBoard" style="width: 600px; margin: auto"></div>
-    <p id="t2" style="text-align: center; font-size: 46px"></p>
-    <!-- <label>Status:</label> -->
-    <!-- <label>Debug:</label> -->
-    <!-- <div class="multiline" id="debug"></div> -->
-    <script src="/static/js/game.js"></script>
+<h1 id="status"></h1>
+<div class="container" style="text-align: center;">
+    <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-6">
+            <span style="color: white">&#x25A0;</span> <h3 id="player1">Player 1</h3>
+            <h2 id="t1">0:00</h2>
+        </div>
+        <div class="col-md-6 col-sm-6 col-xs-6">
+            <span style="color: black">&#x25A0;</span> <h3 id="player2">Player 2</h3>
+            <h2 id="t2">0:00</h2>
+        </div>
+    </div>
 </div>
+
+<div id="myBoard" style="width: 600px; margin: auto"></div>
+<!-- <label>Status:</label> -->
+<!-- <label>Debug:</label> -->
+<!-- <div class="multiline" id="debug"></div> -->
+<script src="/static/js/game.js"></script>
 {% endblock %}

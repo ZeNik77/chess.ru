@@ -99,7 +99,9 @@ def socketdatacheck(data, request, db_sess):
         pack = {'type': 'GET', 'fen': room.data, 'orientation': 'black' if room.b == id else 'white',
                 'state': state,
                 'perms': 'player' if (room.w == id and room.w) or (room.b == id and room.b) else 'observer',
-                'wtimer': room.wtimer, 'btimer': room.btimer}
+                'wtimer': f"{(int(room.wtimer) // 60):02}:{(int(room.wtimer) % 60):02}",
+                'btimer': f"{(int(room.btimer) // 60):02}:{(int(room.btimer) % 60):02}",
+                'wname': w_user.name if w_user else 'Ожидание', 'bname': b_user.name if b_user else 'Ожидание'}
         return json.dumps(pack)
     elif type == 'END' and room.state != 'end':
         if not w_user or not b_user:
