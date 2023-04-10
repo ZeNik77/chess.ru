@@ -37,7 +37,7 @@ def index():
             games = games[:10]
             for el in games:
                 user = get_user(el.w + el.b)
-                data.append(['Классические шахматы', user.name, user.rating, 'Неограниченно', el.glob_id])
+                data.append(['Классические шахматы', user.name, user.rating, '10 минут', el.glob_id])
     return render_template('index.html', cur_user=get_username(request), games=data)
 
 
