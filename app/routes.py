@@ -18,7 +18,6 @@ db_sess = create_session()
 # ERROR HANDLERS
 ...
 
-
 # ROUTES
 @app.route('/')
 @app.route('/index')
@@ -30,14 +29,11 @@ def index():
     if id and g:
         rating = db_sess.query(users.User.rating).filter(users.User.glob_id == id).first()[0]
         games = db_sess.query(rooms.Room).filter(rooms.Room.state == 'lobby').all()
-        games = sorted(games, key=lambda x: abs(
-            rating - db_sess.query(users.User.rating).filter(users.User.glob_id == x.w + x.b).first()[0]))
         print('i hate this game')
         if games:
             games = games[:10]
             for el in games:
-                user = get_user(el.w + el.b)
-                data.append(['Классические шахматы', user.name, user.rating, '10 минут', el.glob_id])
+                data.append(['Классические шахматы', 'имя!!!', 'рейтинг!!!', '10 минут', el.glob_id])
     return render_template('index.html', cur_user=get_username(request), games=data)
 
 
