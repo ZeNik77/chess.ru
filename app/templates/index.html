@@ -1,94 +1,88 @@
 {% extends "base.html" %}
 {% block body %}
-<div class="container-fluid bg-dark">
+<style>
+    p {
+        color: black;
+    }
+</style>
+<div class="container-fluid">
     <div class="row justify-content-center align-items-center h-100">
-      <div class="col-md-8 col-lg-6 text-center text-light">
-        <h1 class="mb-4">Добро пожаловать на сайт шахмат!</h1>
-        <p class="lead">Здесь вы можете играть в шахматы с другими игроками онлайн, общаться с ними и учиться у профессионалов.</p>
-        <a href="#" class="btn btn-primary mt-4" onclick="location.href='/game?id='+getnewroom(1)">Начать игру</a>
-      </div>
+        <div class="col-md-8 col-lg-6 text-center text-light">
+            <h1 class="mb-4" style="color:black">Добро пожаловать на сайт шахмат!</h1>
+            <p class="lead" style="color:black">Здесь вы можете играть в шахматы с другими игроками онлайн, общаться с
+                ними и учиться у профессионалов.</p>
+            <a href="#" class="btn btn-primary mt-4" onclick="location.href='/game?id='+getnewroom(1)">Начать игру</a>
+        </div>
     </div>
     {% if games %}
     <table class="table table-striped">
-      <thead>
+        <thead>
         <tr>
-          <th scope="col">Игра</th>
-          <th scope="col">Соперник</th>
-          <th scope="col">Рейтинг</th>
-          <th scope="col">Время</th>
+            <th scope="col">Игра</th>
+            <th scope="col">Соперник</th>
+            <th scope="col">Рейтинг</th>
+            <th scope="col">Время</th>
         </tr>
-      </thead>
-      <tbody>
-      {% for el in games %}
+        </thead>
+        <tbody>
+        {% for el in games %}
         <tr>
-          <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[0] }}</a></td>
-          <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[1] }}</a></td>
-          <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[2] }}</a></td>
-          <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[3] }}</a></td>
+            <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[0] }}</a></td>
+            <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[1] }}</a></td>
+            <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[2] }}</a></td>
+            <td class="nav-item"><a href="/game?id={{ el[4] }}" class="nav-link px-2 text-muted">{{ el[3] }}</a></td>
         </tr>
-      {% endfor %}
-      </tbody>
+        {% endfor %}
+        </tbody>
     </table>
     {% endif %}
-  <div class="container my-5">
-    <div class="row">
-      <div class="col-md-4">
-        <div class="card bg-light">
-          <div class="card-body">
-            <h5 class="card-title">Новости</h5>
-            <p class="card-text">Будьте в курсе последних новостей из мира шахмат.</p>
-            <a href="#" class="btn btn-primary">Перейти</a>
-          </div>
+    <div class="container my-5" style="">
+        <div class="row" style="display: flex;justify-content: center;">
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Учебник</h5>
+                        <p class="card-text">Улучшайте свою игру с помощью нашего учебника.</p>
+                        <a href="#" class="btn btn-primary">Перейти</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Турниры</h5>
+                        <p class="card-text">Участвуйте в турнирах и выигрывайте призы.</p>
+                        <a href="#" class="btn btn-primary">Перейти</a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card bg-light">
-          <div class="card-body">
-            <h5 class="card-title">Учебник</h5>
-            <p class="card-text">Улучшайте свою игру с помощью нашего учебника.</p>
-            <a href="#" class="btn btn-primary">Перейти</a>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card bg-light">
-          <div class="card-body">
-            <h5 class="card-title">Турниры</h5>
-            <p class="card-text">Участвуйте в турнирах и выигрывайте призы.</p>
-            <a href="#" class="btn btn-primary">Перейти</a>
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
 
-<div class="container my-5">
-  <div class="row">
-    <div class="col-md-6">
-      <div class="card bg-light">
-        <div class="card-body">
-          <h5 class="card-title">Рейтинг игроков</h5>
-          <p class="card-text">Узнайте, кто лидирует в нашем рейтинге игроков.</p>
-          <a href="/leaderboard" class="btn btn-primary">Перейти</a>
+    <div class="container my-5">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Рейтинг игроков</h5>
+                        <p class="card-text">Узнайте, кто лидирует в нашем рейтинге игроков.</p>
+                        <a href="/leaderboard" class="btn btn-primary">Перейти</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5 class="card-title">Обратная связь</h5>
+                        <p class="card-text">Если у вас есть какие-либо вопросы или предложения, свяжитесь с нами.</p>
+                        <a href="#" class="btn btn-primary">Написать</a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-    <div class="col-md-6">
-      <div class="card bg-light">
-        <div class="card-body">
-          <h5 class="card-title">Обратная связь</h5>
-          <p class="card-text">Если у вас есть какие-либо вопросы или предложения, свяжитесь с нами.</p>
-          <a href="#" class="btn btn-primary">Написать</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
 </div>
-
-
-
 
 
 {% endblock %}

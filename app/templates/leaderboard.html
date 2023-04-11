@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block head %}
-<title>Leaderboard</title>
+<title>Рейтинг</title>
 {% endblock %}
 {% block body %}
 <div class="container">
-    <h1>Leaderboard</h1>
+    <h1>Рейтинг</h1>
     <table class="table table-striped">
     <thead>
         <tr>
@@ -13,10 +13,10 @@
         <th>Score</th>
         </tr>
     </thead>
-    <tbody>
+    <tbody style="background-color: rgba(255, 255, 255, 0.5)">
         {% for username, rating in leaderboard_data %}
         <tr>
-        <td>{{ username }}</td>
+        <td style="color: black">{{ username }}</td>
         <td>{{ rating }}</td>
         </tr>
         {% endfor %}
